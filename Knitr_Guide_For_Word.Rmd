@@ -1,0 +1,166 @@
+---
+title: "How to use knitr"
+author: "Jacob Kaplan"
+date: "April 21, 2016"
+output: word_document
+---
+
+#Introduction
+###What is knitr?
+knitr is a package in R that lets you create HTML, Word documents, and PDFs in R. 
+
+####Why should you use it?
+The main benefit of using knitr is when you are doing research and need to present it in some report, it lets you read the data, analyze it, make graphs, write-up your report, and present it all in R. If you are doing complex analysis (as you will in the final research brief) it is much more efficient to analyze the data in R and make your report through knitr. If you change your analysis, or make a new graph, you can simply update your code in R, and it'll automatically alter your report. This is much safer in presenting your data as there is no chance that you forget to update something in your report. 
+
+####Proof read your document in Word
+One thing to note is knitr does not have a good spellcheck so when you make it into a Word doc, use Word's spellchecker.
+
+####Resources on line
+**This website is extremely helpful is making good knitr files. Use it!!!** [https://www.rstudio.com/wp-content/uploads/2015/03/rmarkdown-reference.pdf](https://www.rstudio.com/wp-content/uploads/2015/03/rmarkdown-reference.pdf). It will tell you all the hints and tricks of using knitr. 
+
+#How to use knitr
+You create a new knitr file by clicking File -> New File -> R Markdown... -> select document, add your name, the title, and the date if you'd like, and what type of file you want. knitr can make PDFs but for Windows computers its a more complicated start-up process so you only need to make Word docs for this class. We will learn how to do that and more in the Fall class on Data Science in Public Policy. 
+
+####Some quirks with knitr
+Most of knitr is like writing in Microsoft word, but it has some quirks.
+For example, this sentence looks like it is on a new line, but when you make the Word doc, you'll see that it's still part of the previous paragraph. That is because to start a new paragraph you need to have two spaces at the end of the previous paragraph. So you'd need two spaces after the word "quirks".
+
+####How to create a document
+Unlike other R scripts, you cannot execute individual lines. To create the document, click the **Knit** button (it will show **Knit Word** if you're making a Word doc).
+
+####Few formatting features
+There are some advanced features of knitr that require some knowledge of Cascading Style Sheets (CSS) so we'll provide shortcuts here. There are also features (such as pagebreak) that are only in PDF version (unless you know css). 
+
+#####How to make an indent
+This code: "&nbsp;&nbsp;&nbsp;&nbsp" makes an indent. Each "&nbsp;" makes a one character indent so use all four of them to indent a paragraph. Use the # symbol to make headers. The more # you have, the smaller the header will be so you can use them as subheaders.
+
+# This is the top header
+## This is smaller
+### Smaller
+#### Even smaller
+
+*italics*   
+**bold**
+
+superscript^2 
+
+~~strikethrough~~
+
+endash:   &ndash;  
+emdash:   &mdash;
+
+> block quote
+
+* unorder list
+* item 2
+    + sub-item 1 
+    + sub-item 2
+  
+1. ordered list
+2. item 2
+    + sub-item 1
+    + sub-item 2
+
+#### How to display data in your document
+The most important part of knitr is that it can display data. You can make it display tables from the data in your datasets, or display graphs. 
+
+##### How to display tables
+Lets start with tables. 
+
+Table Header | Second Header
+------------ | -------------
+Table Cell   | Cell 2
+Cell 3       | Cell 4
+
+TO create code in knitr click Chunks (top right, near Run) -> Insert Chunk. This will give you an empty space where you can write your code.
+
+```{r}
+
+```
+
+
+The following chunk creates a dataset and then makes it into a table. Notice the "\\n" near the top of the code. \\n makes a line break which is important when making tables to it is easy to read. Otherwise some lines might get smushed together. This code just makes a normal dataset which you're familiar with. 
+
+The new part is at the end. It is part of the library pander, which can make tables. You need to install this library. 'set.caption' says what caption you want the table to have. This is simular to ggtitle for ggplots. The last part says you want to make a pander table out of the dataset you made. You must include this section. 
+```{r }
+library(pander)
+
+percent_willing <- c("Male\\\n", "Female\\\n", "Total\\\n")
+percent_willing <- data.frame(percent_willing)
+
+percent_willing$white <- c("6.38%", "1.15", "3.72")
+percent_willing$black <- c("4.73%", "1.06", "2.85")
+percent_willing$hispanic <- c("6.93%", "3.48", "5.11")
+percent_willing$total <- c("6.23%", "1.55", "3.72")
+
+
+names(percent_willing)[1] <- "Group"
+names(percent_willing)[2] <- "White"
+names(percent_willing)[3] <- "Black"
+names(percent_willing)[4] <- "Hispanic"
+names(percent_willing)[5] <- "Total"
+
+
+set.caption("Percent Willing to Become a Police Officer (from Monitoring the Future 2008 Survey)")  
+pander(percent_willing)
+```
+
+So we got a nice looking table out of this. The problem is, it displays all the code we wrote. For most reports, we just want to show our results, not our code. To hide the code, add 'echo = FALSE' near the top of the chunk. You will also want to add 'message = FALSE' which will hide any possible message R sends us. 
+
+```{r echo = FALSE, message = FALSE}
+library(pander)
+
+percent_willing <- c("Male\\\n", "Female\\\n", "Total\\\n")
+percent_willing <- data.frame(percent_willing)
+
+percent_willing$white <- c("6.38%", "1.15", "3.72")
+percent_willing$black <- c("4.73%", "1.06", "2.85")
+percent_willing$hispanic <- c("6.93%", "3.48", "5.11")
+percent_willing$total <- c("6.23%", "1.55", "3.72")
+
+
+names(percent_willing)[1] <- "Group"
+names(percent_willing)[2] <- "White"
+names(percent_willing)[3] <- "Black"
+names(percent_willing)[4] <- "Hispanic"
+names(percent_willing)[5] <- "Total"
+
+
+set.caption("Percent Willing to Become a Police Officer (from Monitoring the Future 2008 Survey)")  
+pander(percent_willing)
+```
+
+We can add summary statistics in the same way. You can either make it into a dataset or use the results of a function (such as the summary() function) and display it.
+
+```{r echo = FALSE, message = FALSE}
+summary(cars)
+
+```
+
+The above code works, but lets put it in pander to make it look better.
+
+```{r echo = FALSE, message = FALSE}
+pander(summary(cars))
+```
+
+##### How to display charts
+
+You can also use ggplot nearly the same as you would in normal code. One diference is the knitr operates essentially in its own bubble away from the rest of R so you need to read your data into knitr to use it. So in this example you need to run the ggplot2 library, set your working directory and load your data. It won't run otherwise. 
+```{r echo = FALSE, warning = FALSE}
+library(ggplot2)
+setwd("C://Users/nellim/Dropbox/Fels/knitr")
+load("census_with_city.RData")
+
+ggplot(census_with_city, aes(percent_Black, percent_Black_census, colour = type)) +
+    geom_point(size = 3.5, col = "red") +
+    geom_abline(intercept = 0, col = "black", size = 1.2) + 
+    theme_bw( ) +
+    ylim(0,100) +
+    xlim(0,100) +
+    ylab("% in Community") + xlab("% in Police") +
+    ggtitle("Blacks in Police and Community - Entire Community \n (close to black line indicates same proportion)") + theme_bw()
+
+```
+
+
+**This website is extremely helpful is making good knitr files. Use it!!!** [https://www.rstudio.com/wp-content/uploads/2015/03/rmarkdown-reference.pdf](https://www.rstudio.com/wp-content/uploads/2015/03/rmarkdown-reference.pdf) This cannot be emphasized enough
